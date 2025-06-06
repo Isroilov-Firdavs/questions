@@ -5,6 +5,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TelegramBotController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ use App\Http\Controllers\TestController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/telegram/webhook', [TelegramBotController::class, 'handle']);
 
 Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     // Barcha routinglar shu yerda bo‘ladi

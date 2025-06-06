@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="card">
                         <div class="card-header">
-                            <h4>{{ $question->title }}</h4>
+                            <h4>Savol: {{ $question->question }}</h4>
                         </div>
                         <div class="card-body">
                             @if($question->image)

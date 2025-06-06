@@ -13,7 +13,7 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $questions = Question::latest()->paginate(10);
+        $questions = Question::latest()->paginate(20);
         return view('questions.index', compact('questions'));
     }
 

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
+            {{ __('Savolni tahrirlash') }}
         </h2>
     </x-slot>
 
@@ -62,6 +62,7 @@
 
 
 
+                        <a href="{{ route('questions.index') }}" class="btn btn-secondary mt-3">Orqaga</a>
                         <button type="submit" class="btn btn-success mt-3">Saqlash</button>
                     </form>
 
