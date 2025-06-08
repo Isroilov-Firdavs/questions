@@ -16,12 +16,16 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('questions.index')" :active="request()->routeIs('questions.index')">
-                        {{ __('Questions') }}
-                    </x-nav-link>
-                </div>
+                @auth
+                    @if(auth()->user()->id == 1)
+                        <!-- Navigation Links -->
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link :href="route('questions.index')" :active="request()->routeIs('questions.index')">
+                                {{ __('Questions') }}
+                            </x-nav-link>
+                        </div>
+                    @endif
+                @endauth
             </div>
 
             <!-- Settings Dropdown -->
@@ -40,9 +44,13 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        @auth
+                            @if (auth()->user()->id == 1)
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    {{ __('Profile') }}
+                                </x-dropdown-link>
+                            @endif
+                        @endauth
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">

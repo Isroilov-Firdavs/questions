@@ -31,8 +31,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
         return view('dashboard');  // dashboard asosiy sahifa
     })->name('dashboard');
 
-    // Boshqa routelar shu yerga qo‘shiladi
-    Route::resource('questions', QuestionController::class);
+    Route::resource('questions', QuestionController::class)->middleware('admin.only');
 
 
     // Test haqida ma'lumot sahifasi, "Boshlash" tugmasi shu yerda bo'ladi
