@@ -43,7 +43,7 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
 
     Route::get('/test/{session}/result', [TestController::class, 'showResult'])->name('test.result');
 
-    Route::get('/dashboard/user', [TestController::class, 'userDashboard'])->name('dashboard.user');
+    Route::get('/user', [TestController::class, 'userDashboard'])->name('dashboard.user');
 
     Route::get('/dashboard/admin', [TestController::class, 'adminDashboard'])->middleware('can:viewAdminDashboard')->name('dashboard.admin');
 
