@@ -15,7 +15,7 @@
                     @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
-                    <form action="{{ route('test.start') }}" method="POST">
+                    <form action="{{ route('test.start') }}" method="GET">
                         @csrf
                         <button type="submit" class="btn btn-primary">Testni boshlash</button>
                     </form>

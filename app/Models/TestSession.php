@@ -9,19 +9,11 @@ class TestSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'started_at',
-        'finished_at',
-        'duration',
-    ];
-    protected $casts = [
-        'started_at' => 'datetime',
-        'expires_at' => 'datetime',
-    ];
+    protected $fillable = ['user_id', 'started_at', 'finished_at'];
 
-    public function user()
+    public function userAnswers()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(UserAnswer::class);
     }
+
 }

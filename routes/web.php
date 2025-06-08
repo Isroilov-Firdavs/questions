@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TelegramBotController;
 
 /*
@@ -22,30 +23,31 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/telegram/webhook', [TelegramBotController::class, 'handle']);
-
 Route::prefix('dashboard')->middleware(['auth'])->group(function () {
-    // Barcha routinglar shu yerda bo‘ladi
-
-    Route::get('/', function () {
-        return view('dashboard');  // dashboard asosiy sahifa
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('questions', QuestionController::class)->middleware('admin.only');
 
+    // Testni boshlash uchun route
+    Route::get('/test/start', [TestController::class, 'startTest'])->name('test.start');
+    // Testni olish uchun route
+    Route::get('/test/{session}/take', [TestController::class, 'takeTest'])->name('test.take');
+    // Route::post('/test-session/{session}/answer', [TestController::class, 'saveAnswer'])->name('test.saveAnswer');
+    Route::post('/test/{session}/answer', [TestController::class, 'saveAnswer'])->name('test.answer');
 
-    // Test haqida ma'lumot sahifasi, "Boshlash" tugmasi shu yerda bo'ladi
-    Route::get('/test/info', [TestController::class, 'info'])->name('test.info');
 
-    // Boshlash tugmasi bosilganda POST so'rov qabul qilinadi va test sahifasiga yo'naltiriladi
-    Route::post('/test/start', [TestController::class, 'startTest'])->name('test.start');
 
-    // Test yechish sahifasi (savollar chiqadi)
-    Route::get('/test/take', [TestController::class, 'takeTest'])->name('test.take');
-    Route::post('/test/answer', [TestController::class, 'saveAnswer'])->name('test.answer');
+    // Route::post('/test/{session}/answer', [TestController::class, 'saveAnswer'])->name('test.answer');
 
-    Route::post('/test/submit', [TestController::class, 'submitTest'])->name('test.submit');
-    Route::get('/test/result/{testSession}', [TestController::class, 'showResult'])->name('test.result');
+    Route::post('/test/{session}/finish', [TestController::class, 'finishTest'])->name('test.finish');
+
+    Route::get('/test/{session}/result', [TestController::class, 'showResult'])->name('test.result');
+
+    Route::get('/dashboard/user', [TestController::class, 'userDashboard'])->name('dashboard.user');
+
+    Route::get('/dashboard/admin', [TestController::class, 'adminDashboard'])->middleware('can:viewAdminDashboard')->name('dashboard.admin');
+
+
 
 
 

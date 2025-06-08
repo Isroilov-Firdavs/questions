@@ -10,113 +10,148 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="container">
-                        <h2>Testni yeching (1 soat davomida)</h2>
+                        <h2 class="mb-6 text-2xl font-bold">Testni yeching</h2>
+                        <form id="test-form">
+                            @csrf
+                            <input type="hidden" id="session_id" value="{{ $session->id }}">
+                            {{-- <input type="text" id="session_id" value="{{ $session->id }}"> --}}
 
-                        <div id="timer" style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">60:00</div>
-
-                        <form id="testForm" method="POST" action="{{ route('test.submit') }}">
-                            @foreach($questions as $index => $question)
-                                <div class="card mb-3 p-3 question-block" data-question-id="{{ $question->id }}">
-                                    <p><strong>{{ $index + 1 }}. {{ $question->question }}</strong></p>
-
-                                    @if($question->image)
-                                        <img src="{{ asset('storage/' . $question->image) }}" alt="Savol rasmi" style="max-width: 300px; margin-bottom: 10px;">
-                                    @endif
-
+                            @foreach($questions as $q)
+                            <div class="question mb-6 p-4 border rounded" data-question-id="{{ $q->id }}">
+                                <p class="mb-2"><strong>{{ $loop->iteration }}. {{ $q->question }}</strong></p>
+                                @if($q->image)
+                                <img src="{{ asset('storage/' . $q->image) }}" alt="question image" style="max-width:200px; margin-bottom: 10px;">
+                                @endif
+                                <div class="options space-y-2">
+                                    @foreach(['a', 'b', 'c', 'd'] as $opt)
                                     @php
-                                        $options = ['A' => $question->option_a, 'B' => $question->option_b, 'C' => $question->option_c, 'D' => $question->option_d];
+                                        $optionText = $q->{'option_' . $opt};
                                     @endphp
-
-                                    @foreach($options as $key => $value)
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio"
-                                                name="answer_{{ $question->id }}"
-                                                id="q{{ $question->id }}_{{ $key }}"
-                                                value="{{ $key }}"
-                                                data-correct="{{ $question->correct_option }}"
-                                                onchange="submitAnswer(this)" >
-                                            <label class="form-check-label" for="q{{ $question->id }}_{{ $key }}">
-                                                {{ $key }}. {{ $value }}
-                                            </label>
-                                        </div>
+                                    <div>
+                                        <input type="radio"
+                                               name="question_{{ $q->id }}"
+                                               id="q{{ $q->id }}_{{ $opt }}"
+                                               value="{{ $opt }}">
+                                        <label for="q{{ $q->id }}_{{ $opt }}">{{ strtoupper($opt) }}: {{ $optionText }}</label>
+                                    </div>
                                     @endforeach
                                 </div>
+                            </div>
                             @endforeach
-                            <!-- Yuborish tugmasi shu yerda -->
-                            {{-- <button type="button" id="submitTestBtn" class="btn btn-primary mt-3">Yuborish</button> --}}
+
+                            <button type="button" id="finish-test" class="btn btn-success px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">
+                                Testni yakunlash
+                            </button>
                         </form>
-                        <style>
-                            .correct {
-                                background-color: #d4edda !important; /* yashil */
-                            }
-                            .wrong {
-                                background-color: #f8d7da !important; /* qizil */
-                            }
-                        </style>
-                        <script>
-                            let totalTime = 3600;
-                            const timerEl = document.getElementById('timer');
-
-                            let interval = setInterval(() => {
-                                if (totalTime <= 0) {
-                                    clearInterval(interval);
-                                    disableAll();
-                                    alert('Vaqt tugadi! Test tugadi.');
-                                    return;
-                                }
-                                totalTime--;
-
-                                let minutes = Math.floor(totalTime / 60);
-                                let seconds = totalTime % 60;
-
-                                timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-                            }, 1000);
-
-                            function disableAll() {
-                                document.querySelectorAll('input[type=radio]').forEach(radio => radio.disabled = true);
-                            }
-
-                            function submitAnswer(el) {
-                                let questionId = el.name.replace('answer_', '');
-                                let selectedOption = el.value;
-
-                                fetch("{{ route('test.answer') }}", {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        question_id: questionId,
-                                        selected_option: selectedOption
-                                    })
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        let questionBlock = el.closest('.question-block');
-                                        let radios = questionBlock.querySelectorAll('input[type=radio]');
-
-                                        radios.forEach(radio => {
-                                            radio.disabled = true;
-                                            if (radio.value === data.correct_option.toUpperCase()) {
-                                                radio.parentElement.classList.add('correct');
-                                            }
-                                        });
-
-                                        if (!data.is_correct) {
-                                            el.parentElement.classList.add('wrong');
-                                        }
-                                    } else {
-                                        alert('Javob saqlanmadi.');
-                                    }
-                                })
-                                .catch(() => alert('Server bilan bog‘lanishda xatolik yuz berdi'));
-                            }
-                        </script>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <style>
+        .question {
+            border: 1px solid #e2e8f0; /* Gray border */
+            border-radius: 0.375rem; /* Rounded corners */
+            padding: 1rem; /* Padding inside the question box */
+            margin-bottom: 1.5rem; /* Space between questions */
+        }
+        .options input[type="radio"] {
+            margin-right: 0.5rem; /* Space between radio button and label */
+        }
+        .options label {
+            cursor: pointer; /* Change cursor to pointer for labels */
+        }
+        .options label:hover {
+            color: #2b6cb0; /* Change color on hover */
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            color: #fff;
+            background-color: #4a5568; /* Gray background */
+            border-radius: 0.375rem; /* Rounded corners */
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn:hover {
+            background-color: #2d3748; /* Darker gray on hover */
+        }
+    </style>
+
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
+    <script>
+        $(document).ready(function() {
+            const sessionId = $('#session_id').val();
+            const token = $('input[name="_token"]').val();
+
+            // Har bir radio uchun listener
+            $('input[type=radio]').on('change', function() {
+                const questionDiv = $(this).closest('.question');
+                const questionId = questionDiv.data('question-id');
+                const selectedOption = $(this).val();
+
+                $.ajax({
+                    url: `/dashboard/test/${sessionId}/answer`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    },
+                    data: JSON.stringify({
+                        question_id: questionId,
+                        selected_option: selectedOption,
+                    }),
+                    success: function(data) {
+                        if (data.success) {
+                            // Disable barcha radio buttonlar
+                            questionDiv.find('input[type=radio]').prop('disabled', true);
+
+                            // To'g'ri va noto'g'ri variantlarni ranglash
+                            const correctOpt = data.correct_option;
+                            questionDiv.find('input[type=radio]').each(function() {
+                                const label = questionDiv.find(`label[for="${$(this).attr('id')}"]`);
+                                if ($(this).val() === correctOpt) {
+                                    label.css({'color': 'green', 'font-weight': 'bold'});
+                                }
+                                if ($(this).is(':checked') && !data.is_correct) {
+                                    label.css({'color': 'red', 'font-weight': 'bold'});
+                                }
+                            });
+                        } else {
+                            alert('Javob saqlashda xatolik yuz berdi');
+                        }
+                    },
+                    error: function() {
+                        alert('Javob saqlashda xatolik yuz berdi');
+                    }
+                });
+            });
+
+            $('#finish-test').on('click', function() {
+                $.ajax({
+                    url: `/dashboard/test/${sessionId}/finish`,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    },
+                    success: function(res) {
+                        if (res.redirect_url) {
+                            window.location.href = res.redirect_url;
+                        } else {
+                            alert('Testni yakunlashda xatolik yuz berdi');
+                        }
+                    },
+                    error: function() {
+                        alert('Testni yakunlashda xatolik yuz berdi');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+
 </x-app-layout>

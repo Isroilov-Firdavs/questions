@@ -7,56 +7,69 @@ use App\Models\UserAnswer;
 use App\Models\TestSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class TestController extends Controller
 {
-
-    public function info()
+    public function indexDashboard()
     {
-        return view('test.start');  // Bu yerda "Boshlash" tugmasi bor
+        return view('dashboard');
     }
 
-    // Testni boshlash (POST)
+    // Testni boshlash - yangi session yaratish va boshlash vaqtini yozish
     public function startTest()
     {
-        $user = Auth::user();
-
-        // Test sessiyasini yaratish yoki kerak bo'lsa boshqa ish qilish
-        // Lekin sizda vaqt kerak emas, shuning uchun oddiy yo'naltirish qilamiz
-
-        return redirect()->route('test.take');
-    }
-
-    // Test savollari chiqadigan sahifa
-    public function takeTest()
-    {
-        $questions = Question::inRandomOrder()->limit(200)->get();
-
-        return view('test.take', compact('questions'));
-    }
-
-    // Javobni saqlash API
-    public function saveAnswer(Request $request)
-    {
-        $request->validate([
-            'question_id' => 'required|exists:questions,id',
-            'selected_option' => 'required|in:A,B,C,D',
+        $testSession = TestSession::create([
+            'user_id' => Auth::id(),
+            'started_at' => Carbon::now(),
         ]);
 
-        $user = Auth::user();
+        return redirect()->route('test.take', ['session' => $testSession->id]);
+    }
 
-        $question = Question::findOrFail($request->question_id);
+    // Test savollarini ko'rsatish
+    public function takeTest(TestSession $session)
+    {
+        $questions = Question::paginate(3);
 
-        $is_correct = strtoupper($request->selected_option) === strtoupper($question->correct_option);
+        // User faqat o'z sessionini ko'ra olishi kerak
+        if ($session->user_id !== Auth::id()) {
+            abort(403);
+        }
 
+        // Agar test tugagan bo'lsa, redirect natijalarga
+        if ($session->finished_at) {
+            return redirect()->route('test.result', ['session' => $session->id]);
+        }
+
+        return view('test.take', compact('questions', 'session'));
+    }
+
+    // Javob saqlash (AJAX uchun)
+    public function saveAnswer(Request $request, TestSession $session)
+    {
+        // Foydalanuvchining o‘z sessiyasi ekanligini va test hali yakunlanmaganligini tekshirish
+        if ($session->user_id !== Auth::id() || $session->finished_at) {
+            return response()->json(['error' => 'Unauthorized or test finished'], 403);
+        }
+
+        $validated = $request->validate([
+            'question_id' => 'required|exists:questions,id',
+            'selected_option' => 'required|in:a,b,c,d',
+        ]);
+
+        $question = Question::findOrFail($validated['question_id']);
+        $is_correct = $question->correct_option === $validated['selected_option'];
+
+        // Javobni saqlaymiz (update yoki create)
         UserAnswer::updateOrCreate(
             [
-                'user_id' => $user->id,
-                'question_id' => $question->id,
+                'test_session_id' => $session->id,
+                'question_id' => $validated['question_id'],
             ],
             [
-                'selected_option' => strtoupper($request->selected_option),
+                'selected_option' => $validated['selected_option'],
                 'is_correct' => $is_correct,
             ]
         );
@@ -68,60 +81,50 @@ class TestController extends Controller
         ]);
     }
 
-    public function submitTest(Request $request)
+    public function finishTest(TestSession $session)
     {
-        dd($request->all());
-        // $user = Auth::user();
-
-        // $testSessionId = $request->input('test_session_id');
-        // $testSession = TestSession::findOrFail($testSessionId);
-
-        // if ($testSession->user_id !== $user->id) {
-        //     abort(403, 'Ruxsat yo‘q');
-        // }
-
-        // $answers = $request->input('answers'); // ['question_id' => 'A', ...]
-
-        // foreach ($answers as $questionId => $selectedOption) {
-        //     $question = Question::find($questionId);
-
-        //     if (!$question) continue;
-
-        //     $isCorrect = strtoupper($selectedOption) === strtoupper($question->correct_option);
-
-        //     UserAnswer::updateOrCreate(
-        //         [
-        //             'user_id' => $user->id,
-        //             'question_id' => $questionId,
-        //         ],
-        //         [
-        //             'selected_option' => strtoupper($selectedOption),
-        //             'is_correct' => $isCorrect,
-        //         ]
-        //     );
-        // }
-
-        // $testSession->status = 'completed';
-        // $testSession->finished_at = now();
-        // $testSession->save();
-
-        // return redirect()->route('test.result', $testSession->id);
-    }
-
-    public function showResult(TestSession $testSession)
-    {
-        $user = Auth::user();
-
-        if ($testSession->user_id !== $user->id) {
-            abort(403, 'Ruxsat yo‘q');
+        if ($session->user_id !== Auth::id() || $session->finished_at) {
+            abort(403);
         }
 
-        $answers = UserAnswer::where('user_id', $user->id)
-                             ->whereIn('question_id', Question::pluck('id'))
-                             ->get();
+        $session->update([
+            'finished_at' => Carbon::now(),
+        ]);
 
-        $correctCount = $answers->where('is_correct', true)->count();
+        // Redirect o‘rniga front-endga URLni yuboramiz:
+        return response()->json([
+            'redirect_url' => route('test.result', ['session' => $session->id])
+        ]);
+    }
 
-        return view('test.result', compact('testSession', 'answers', 'correctCount'));
+
+    // Test natijalarini ko'rsatish
+    public function showResult(TestSession $session)
+    {
+        if ($session->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $answers = $session->userAnswers()->with('question')->get();
+
+        return view('test.result', compact('answers', 'session'));
+    }
+
+    // User dashboard - barcha test sessionlar va natijalar
+    public function userDashboard()
+    {
+        $sessions = TestSession::where('user_id', Auth::id())->withCount(['userAnswers as correct_count' => function ($query) {
+            $query->where('is_correct', true);
+        }])->get();
+
+        return view('dashboard.user', compact('sessions'));
+    }
+
+    // Admin dashboard - barcha user testlari va natijalar
+    public function adminDashboard()
+    {
+        $sessions = TestSession::with('user', 'userAnswers')->get();
+
+        return view('dashboard.admin', compact('sessions'));
     }
 }

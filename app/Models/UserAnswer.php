@@ -8,17 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class UserAnswer extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'user_id', 'question_id', 'selected_option', 'is_correct'
-    ];
+    protected $fillable = ['test_session_id', 'question_id', 'selected_option', 'is_correct'];
 
     public function question()
     {
         return $this->belongsTo(Question::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }

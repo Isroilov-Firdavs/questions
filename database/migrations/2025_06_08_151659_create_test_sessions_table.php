@@ -12,13 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('test_sessions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamp('started_at')->nullable();
-            $table->timestamp('finished_at')->nullable();
-            $table->integer('duration')->default(3600); // test uchun 1 soat = 3600 sekund
-            $table->timestamps();
-        });
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->timestamp('started_at')->nullable();
+        $table->timestamp('finished_at')->nullable();
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
+
     }
 
     /**
