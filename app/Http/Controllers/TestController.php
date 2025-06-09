@@ -44,7 +44,7 @@ class TestController extends Controller
         // }
 
         // return view('test.take', compact('questions', 'session'));
-        dd(Auth::id(), $session->user_id);
+        dd(Auth::id(), (int)$session->user_id);
 
 
     }
