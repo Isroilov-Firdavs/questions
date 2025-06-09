@@ -86,6 +86,8 @@
         $(document).ready(function() {
             const sessionId = $('#session_id').val();
             const token = $('input[name="_token"]').val();
+
+
             const answerUrl = `{{ url('dashboard/test') }}/${sessionId}/answer`;
             const finishUrl = `{{ url('dashboard/test') }}/${sessionId}/finish`;
 
