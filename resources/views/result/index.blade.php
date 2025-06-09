@@ -17,7 +17,6 @@
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
                         <form action="{{ route('test.start') }}" method="GET">
-                            @csrf
                             <button type="submit" class="btn btn-primary">Testni boshlash</button>
                         </form>
                         <h2>Mening test natijalarim</h2>
