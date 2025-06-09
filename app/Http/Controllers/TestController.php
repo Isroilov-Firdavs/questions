@@ -100,7 +100,7 @@ class TestController extends Controller
     // Test natijalarini ko'rsatish
     public function showResult(TestSession $session)
     {
-        if ($session->user_id !== Auth::id()) {
+        if ((int)$session->user_id !== Auth::id()) {
             abort(403);
         }
 
