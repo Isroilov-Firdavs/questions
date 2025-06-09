@@ -49,7 +49,7 @@ class TestController extends Controller
     public function saveAnswer(Request $request, TestSession $session)
     {
         // Foydalanuvchining o‘z sessiyasi ekanligini va test hali yakunlanmaganligini tekshirish
-        if ($session->user_id !== Auth::id() || $session->finished_at) {
+        if ((int)$session->user_id !== Auth::id() || $session->finished_at) {
             return response()->json(['error' => 'Unauthorized or test finished'], 403);
         }
 
@@ -82,7 +82,7 @@ class TestController extends Controller
 
     public function finishTest(TestSession $session)
     {
-        if ($session->user_id !== Auth::id() || $session->finished_at) {
+        if ((int)$session->user_id !== Auth::id() || $session->finished_at) {
             abort(403);
         }
 
