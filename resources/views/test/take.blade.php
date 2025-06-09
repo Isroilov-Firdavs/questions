@@ -86,6 +86,8 @@
         $(document).ready(function() {
             const sessionId = $('#session_id').val();
             const token = $('input[name="_token"]').val();
+            const answerUrl = `{{ url('dashboard/test') }}/${sessionId}/answer`;
+            const finishUrl = `{{ url('dashboard/test') }}/${sessionId}/finish`;
 
             // Har bir radio uchun listener
             $('input[type=radio]').on('change', function() {
@@ -94,7 +96,7 @@
                 const selectedOption = $(this).val();
 
                 $.ajax({
-                    url: `/dashboard/test/${sessionId}/answer`,
+                    url: answerUrl,
                     method: 'POST',
                     contentType: 'application/json',
                     headers: {
@@ -132,7 +134,7 @@
 
             $('#finish-test').on('click', function() {
                 $.ajax({
-                    url: `/dashboard/test/${sessionId}/finish`,
+                    url: finishUrl,
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': token
