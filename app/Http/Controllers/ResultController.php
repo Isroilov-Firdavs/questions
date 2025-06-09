@@ -6,24 +6,25 @@ use App\Models\TestSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardController extends Controller
+class ResultController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // $session = TestSession::withCount([
-        // 'userAnswers as correct_count' => function ($query) {
-        //     $query->where('is_correct', true);
-        // }
-        //     ])
-        //     ->where('user_id', Auth::id())
-        //     ->orderBy('created_at', 'desc')
-        //     ->get();
+        $sessions = TestSession::where('user_id', Auth::id())
+            ->withCount([
+                'userAnswers as correct_count' => function ($query) {
+                    $query->where('is_correct', true);
+                }
+            ])
+            ->orderBy('created_at', 'desc') // oxirgi yaratilgan birinchi chiqadi
+            ->get();
 
-            return view('dashboard');
-    }
+        return view('result.index', compact('sessions'));
+}
+
 
     /**
      * Show the form for creating a new resource.

@@ -31,7 +31,7 @@ class TestController extends Controller
     // Test savollarini ko'rsatish
     public function takeTest(TestSession $session)
     {
-        $questions = Question::paginate(3);
+        $questions = Question::inRandomOrder()->limit(50)->get();
 
         // User faqat o'z sessionini ko'ra olishi kerak
         if ($session->user_id !== Auth::id()) {
