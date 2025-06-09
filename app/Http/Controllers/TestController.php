@@ -31,19 +31,21 @@ class TestController extends Controller
     // Test savollarini ko'rsatish
     public function takeTest(TestSession $session)
     {
-        $questions = Question::inRandomOrder()->limit(50)->get();
+        // $questions = Question::inRandomOrder()->limit(50)->get();
 
         // User faqat o'z sessionini ko'ra olishi kerak
-        if ($session->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($session->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
-        // Agar test tugagan bo'lsa, redirect natijalarga
-        if ($session->finished_at) {
-            return redirect()->route('test.result', ['session' => $session->id]);
-        }
 
-        return view('test.take', compact('questions', 'session'));
+        // // Agar test tugagan bo'lsa, redirect natijalarga
+        // if ($session->finished_at) {
+        //     return redirect()->route('test.result', ['session' => $session->id]);
+        // }
+
+        // return view('test.take', compact('questions', 'session'));
+        dd(Auth::id(), $session->user_id);
     }
 
     // Javob saqlash (AJAX uchun)
