@@ -24,7 +24,6 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Test ID</th>
                                     <th>Boshlanish vaqti</th>
                                     <th>Tugash vaqti</th>
                                     <th>To'g'ri javoblar soni</th>
@@ -41,7 +40,6 @@
                                     $percentage = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100, 2) : 0;
                                 @endphp
                                 <tr>
-                                    <td>{{ $session->id }}</td>
                                     <td>{{ \Carbon\Carbon::parse($session->started_at)->timezone('Asia/Tashkent')->format('d.m.Y H:i:s') }}</td>
                                     <td>
                                         {{ $session->finished_at

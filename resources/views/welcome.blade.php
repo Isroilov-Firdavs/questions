@@ -31,7 +31,7 @@
                 </div>
             @endif
 
-            <div class="max-w-7xl mx-auto p-6 lg:p-8">result.index
+            <div class="max-w-7xl mx-auto p-6 lg:p-8">
                 <div class="flex justify-center">
                     <form action="{{ route('test.start') }}" method="GET">
                         <button type="submit" class="btn btn-primary">Testni boshlash</button>
