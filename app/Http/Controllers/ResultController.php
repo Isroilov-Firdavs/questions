@@ -23,7 +23,21 @@ class ResultController extends Controller
             ->get();
 
         return view('result.index', compact('sessions'));
-}
+    }
+    public function userResult()
+    {
+        $results = TestSession::with('user')
+            ->withCount([
+                'userAnswers as correct_answers_count' => function ($query) {
+                    $query->where('is_correct', true);
+                },
+                'userAnswers as total_answers_count'
+            ])
+            ->latest()
+            ->get();
+
+        return view('result.userresult', compact('results'));
+    }
 
 
     /**

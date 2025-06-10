@@ -10,9 +10,9 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="container">
-                        <h2>Test natijalari</h2>
-                        <p>Test boshlanish vaqti: {{ $session->started_at }}</p>
-                        <p>Test tugash vaqti: {{ $session->finished_at }}</p>
+                        <h2>Test natijalari:</h2>
+                        <p>Test boshlanish vaqti: {{ \Carbon\Carbon::parse($session->started_at)->timezone('Asia/Tashkent')->format('d.m.Y H:i:s') }}</p>
+                        <p>Test tugash vaqti: {{ \Carbon\Carbon::parse($session->finished_at)->timezone('Asia/Tashkent')->format('d.m.Y H:i:s') }}</p>
 
                         <table class="table table-bordered">
                             <thead>

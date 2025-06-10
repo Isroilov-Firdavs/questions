@@ -29,6 +29,8 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
 
     Route::resource('questions', QuestionController::class)->middleware('admin.only');
     Route::resource('result', ResultController::class);
+    Route::get('/user-results', [ResultController::class, 'userResult'])->name('userresults')->middleware('admin.only');
+
 
     // Testni boshlash uchun route
     Route::get('/test/start', [TestController::class, 'startTest'])->name('test.start');
