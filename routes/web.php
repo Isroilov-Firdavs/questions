@@ -30,6 +30,8 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
     Route::resource('questions', QuestionController::class)->middleware('admin.only');
     Route::resource('result', ResultController::class);
     Route::get('/user-results', [ResultController::class, 'userResult'])->name('userresults')->middleware('admin.only');
+    Route::get('/users-test', [ResultController::class, 'userPage'])->name('userPage')->middleware('admin.only');
+
 
 
     // Testni boshlash uchun route

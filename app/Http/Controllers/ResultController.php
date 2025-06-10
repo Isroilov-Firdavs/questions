@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\TestSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,12 @@ class ResultController extends Controller
             ->get();
 
         return view('result.userresult', compact('results'));
+    }
+
+    public function userPage()
+    {
+        $users = User::all(); // Barcha foydalanuvchilarni olib keladi
+        return view('result.userpage', compact('users'));
     }
 
 
