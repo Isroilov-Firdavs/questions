@@ -15,6 +15,7 @@
                         <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Foydalanuvchi</th>
                                     <th>Boshlanish</th>
                                     <th>Tugash</th>
@@ -26,6 +27,7 @@
                             <tbody>
                                 @forelse($results as $result)
                                     <tr>
+                                        <td>{{ $result->id ?? 'No name' }}</td>
                                         <td>{{ $result->user->name ?? 'No name' }}</td>
                                         <td>{{ \Carbon\Carbon::parse($result->started_at)->timezone('Asia/Tashkent')->format('d.m.Y H:i:s') ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::parse($result->finished_at)->timezone('Asia/Tashkent')->format('d.m.Y H:i:s') ?? 'Test yakunlanmagan' }}</td>
@@ -44,6 +46,9 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-center mt-4">
+                            {{ $results->links() }}
+                        </div>
                     </div>
                 </div>
             </div>

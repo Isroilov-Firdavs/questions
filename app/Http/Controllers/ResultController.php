@@ -35,14 +35,14 @@ class ResultController extends Controller
                 'userAnswers as total_answers_count'
             ])
             ->latest()
-            ->get();
+            ->paginate(20);
 
         return view('result.userresult', compact('results'));
     }
 
     public function userPage()
     {
-        $users = User::all(); // Barcha foydalanuvchilarni olib keladi
+        $users = User::paginate(20); // Barcha foydalanuvchilarni olib keladi
         return view('result.userpage', compact('users'));
     }
 
